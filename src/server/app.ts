@@ -7,7 +7,10 @@ import { listPersonasRoute, listCategoriesRoute } from "./routes/personaRoute.ts
 import { loadPersonasFromDirectory } from "../domains/persona/index.ts";
 import { loadFeedbackDataFromFile } from "../domains/feedback-data/index.ts";
 import { initializeModel } from "../domains/generation/index.ts";
+import { loadFromBinary, getEntryCount } from "../domains/rag/index.ts";
 import type { ModelConfig } from "../shared/types.ts";
+
+const VECTOR_STORE_PATH = "data/vector-store/dialogues.bin";
 
 export function createApp(): express.Express {
   const app = express();
@@ -26,6 +29,15 @@ export function loadData(dataDir?: string): void {
 
   loadPersonasFromDirectory(join(dir, "personas"));
   loadFeedbackDataFromFile(join(dir, "feedback-examples", "examples.json"));
+
+  const vectorStorePath = join(process.cwd(), VECTOR_STORE_PATH);
+  if (existsSync(vectorStorePath)) {
+    console.log("벡터 스토어 로딩 중...");
+    loadFromBinary(vectorStorePath);
+    console.log(`벡터 스토어 로딩 완료: ${getEntryCount()}건`);
+  } else {
+    console.warn("벡터 스토어 없음 — RAG 비활성화 (scripts/build-vectors.ts를 실행하세요)");
+  }
 }
 
 export async function loadModel(dataDir?: string): Promise<void> {

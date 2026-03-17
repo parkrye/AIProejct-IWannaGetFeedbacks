@@ -6,9 +6,32 @@ import { getPersonasByIds } from "../../domains/persona/index.ts";
 import { getFewShotExamples } from "../../domains/feedback-data/index.ts";
 import { buildPrompt } from "../../domains/generation/promptBuilder.ts";
 import { generateWithCallback } from "../../domains/generation/llmEngine.ts";
+import { search, getEntryCount } from "../../domains/rag/index.ts";
+import { embed, initEmbedder } from "../../domains/rag/embedder.ts";
+import type { SearchResult } from "../../domains/rag/types.ts";
+
+const RAG_TOP_K = 3;
+
+let embedderReady = false;
 
 function loadJsonFile<T>(filePath: string): T {
   return JSON.parse(readFileSync(filePath, "utf-8")) as T;
+}
+
+async function getRagResults(postText: string): Promise<SearchResult[]> {
+  if (getEntryCount() === 0) return [];
+
+  try {
+    if (!embedderReady) {
+      await initEmbedder();
+      embedderReady = true;
+    }
+    const queryVector = await embed(postText);
+    return search(queryVector, RAG_TOP_K);
+  } catch (error) {
+    console.warn("RAG 검색 실패:", (error as Error).message);
+    return [];
+  }
 }
 
 export async function generateRoute(req: Request, res: Response): Promise<void> {
@@ -29,6 +52,8 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
   const template = loadJsonFile<PromptTemplate>(join(dataDir, "config", "prompt-templates.json"));
   const modelConfig = loadJsonFile<ModelConfig>(join(dataDir, "config", "model.json"));
 
+  const ragResults = await getRagResults(body.postText);
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -43,6 +68,7 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
       persona,
       fewShotExamples,
       template,
+      ragResults,
     });
 
     const sendEvent = (data: object) => {

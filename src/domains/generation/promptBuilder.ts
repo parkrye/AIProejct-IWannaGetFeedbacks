@@ -5,6 +5,7 @@ import type {
   PromptTemplate,
   FeedbackExample,
 } from "../../shared/types.ts";
+import type { SearchResult } from "../rag/types.ts";
 
 interface PromptContext {
   readonly postText: string;
@@ -13,6 +14,7 @@ interface PromptContext {
   readonly persona: Persona;
   readonly fewShotExamples: readonly FeedbackExample[];
   readonly template: PromptTemplate;
+  readonly ragResults?: readonly SearchResult[];
 }
 
 export function buildPrompt(context: PromptContext): { system: string; user: string } {
@@ -28,7 +30,9 @@ export function buildPrompt(context: PromptContext): { system: string; user: str
     .replace("{{promptHint}}", context.persona.promptHint)
     .replace("{{examplePatterns}}", context.persona.examplePatterns.join(" / "));
 
-  const fullUser = fewShotSection ? `${fewShotSection}\n\n${user}` : user;
+  const ragSection = formatRagResults(context.ragResults ?? []);
+  const sections = [ragSection, fewShotSection, user].filter(Boolean);
+  const fullUser = sections.join("\n\n");
 
   return {
     system: context.template.system,
@@ -48,6 +52,17 @@ function formatFewShotExamples(examples: readonly FeedbackExample[]): string {
     (e, i) => `예시 ${i + 1}:\n상황: ${e.context}\n댓글: ${e.feedback}`,
   );
   return `[참고 예시]\n${lines.join("\n\n")}`;
+}
+
+function formatRagResults(results: readonly SearchResult[]): string {
+  if (results.length === 0) return "";
+
+  const lines = results.map((r, i) => {
+    const topic = r.entry.metadata.singleTopic;
+    const utterances = r.entry.metadata.sampleUtterances.join(" / ");
+    return `대화 ${i + 1} (주제: ${topic}):\n${utterances}`;
+  });
+  return `[실제 SNS 대화 참고]\n${lines.join("\n\n")}`;
 }
 
 function translateSentiment(sentiment: string): string {

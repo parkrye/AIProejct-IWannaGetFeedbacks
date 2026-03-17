@@ -11,9 +11,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "server": "tsx src/server/index.ts",
+    "build-vectors": "tsx scripts/build-vectors.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "@mediapipe/tasks-vision": "^0.10.32",
     "express": "^5.2.1",
     "node-llama-cpp": "^3.18.1",
