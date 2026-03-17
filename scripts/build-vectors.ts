@@ -3,6 +3,7 @@ import { join } from "path";
 import { snsDialogueAdapter } from "../src/domains/rag/adapters/snsDialogueAdapter.ts";
 import { cultureTermUsageAdapter } from "../src/domains/rag/adapters/cultureTermUsageAdapter.ts";
 import { cultureTermDefAdapter } from "../src/domains/rag/adapters/cultureTermDefAdapter.ts";
+import { multiSessionDialogueAdapter } from "../src/domains/rag/adapters/multiSessionDialogueAdapter.ts";
 import { initEmbedder, embed, disposeEmbedder } from "../src/domains/rag/embedder.ts";
 import { addEntry, saveToBinary, getEntryCount, loadFromBinary } from "../src/domains/rag/vectorStore.ts";
 import type { VectorMetadata, NormalizedDialogue, RawDataAdapter } from "../src/domains/rag/types.ts";
@@ -11,12 +12,13 @@ import { existsSync } from "fs";
 const OUTPUT_PATH = join(process.cwd(), "data", "vector-store", "dialogues.bin");
 const BATCH_LOG_INTERVAL = 1000;
 
-type SourceType = "sns-dialogue" | "culture-usage" | "culture-def";
+type SourceType = "sns-dialogue" | "culture-usage" | "culture-def" | "multi-session";
 
 const SOURCE_TYPES: Record<SourceType, string> = {
   "sns-dialogue": "SNS 대화 데이터 (파일당 1건 JSON)",
   "culture-usage": "문화/게임 용례 데이터 (배열 JSON)",
   "culture-def": "문화/게임 용어 정의 데이터 (배열 JSON)",
+  "multi-session": "한국어 멀티세션 대화 데이터 (파일당 1건 JSON)",
 };
 
 function printUsage(): void {
@@ -58,7 +60,10 @@ async function processEntry(dialogue: NormalizedDialogue): Promise<void> {
   addEntry(dialogue.id, vector, metadata);
 }
 
-async function processSnsDialogue(dataDir: string): Promise<{ processed: number; errors: number }> {
+async function processSingleFileJson<T>(
+  dataDir: string,
+  adapter: RawDataAdapter<T>,
+): Promise<{ processed: number; errors: number }> {
   const files = readdirSync(dataDir).filter((f) => f.endsWith(".json"));
   console.log(`JSON 파일 수: ${files.length}`);
 
@@ -69,7 +74,7 @@ async function processSnsDialogue(dataDir: string): Promise<{ processed: number;
   for (const file of files) {
     try {
       const raw = JSON.parse(readFileSync(join(dataDir, file), "utf-8"));
-      const dialogue = snsDialogueAdapter.normalize(raw);
+      const dialogue = adapter.normalize(raw);
       await processEntry(dialogue);
       processed++;
       logProgress(processed, files.length, startTime);
@@ -179,7 +184,10 @@ async function main(): Promise<void> {
 
   switch (sourceType) {
     case "sns-dialogue":
-      result = await processSnsDialogue(dataDir);
+      result = await processSingleFileJson(dataDir, snsDialogueAdapter);
+      break;
+    case "multi-session":
+      result = await processSingleFileJson(dataDir, multiSessionDialogueAdapter);
       break;
     case "culture-usage":
       result = await processArrayJson(dataDir, cultureTermUsageAdapter);
