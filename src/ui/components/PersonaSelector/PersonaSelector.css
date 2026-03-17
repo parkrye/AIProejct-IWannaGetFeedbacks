@@ -1,0 +1,88 @@
+.persona-selector {
+  padding: 16px;
+  background: #1a1a2e;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.persona-selector__loading {
+  color: #b0b0b0;
+  padding: 16px;
+}
+
+.persona-selector__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.persona-selector__title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #e0e0e0;
+}
+
+.persona-selector__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.persona-selector__action-btn {
+  padding: 4px 10px;
+  background: transparent;
+  color: #8888cc;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.persona-selector__action-btn:hover {
+  background: #2d2d5e;
+}
+
+.persona-selector__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.persona-selector__card {
+  padding: 12px;
+  background: #16213e;
+  border: 2px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.persona-selector__card:hover {
+  border-color: #6c63ff;
+}
+
+.persona-selector__card--selected {
+  border-color: #6c63ff;
+  background: #2d2d5e;
+}
+
+.persona-selector__name {
+  font-weight: bold;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+}
+
+.persona-selector__hint {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.persona-selector__count {
+  margin: 8px 0 0;
+  color: #888;
+  font-size: 0.85rem;
+}

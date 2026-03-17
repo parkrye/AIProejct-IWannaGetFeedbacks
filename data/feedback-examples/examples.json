@@ -1,0 +1,52 @@
+[
+  {
+    "personaId": "cheerful-supporter",
+    "context": "맛있는 음식 사진과 함께 올린 일상 게시글",
+    "feedback": "와 이거 진짜 맛있겠다!! 어디서 먹은 거예요? 저도 가보고 싶어요 😍"
+  },
+  {
+    "personaId": "cheerful-supporter",
+    "context": "새로운 취미를 시작했다는 게시글",
+    "feedback": "오 대박!! 완전 멋지다! 앞으로의 성장이 기대돼요 💪"
+  },
+  {
+    "personaId": "calm-analyst",
+    "context": "새로운 카페를 방문한 리뷰 게시글",
+    "feedback": "인테리어와 음료 퀄리티가 균형 잡혀 보이네요. 가격대도 합리적인 편인가요?"
+  },
+  {
+    "personaId": "calm-analyst",
+    "context": "운동 루틴을 공유한 게시글",
+    "feedback": "체계적인 루틴이네요. 주당 빈도와 회복 시간 배분이 적절해 보입니다."
+  },
+  {
+    "personaId": "witty-commenter",
+    "context": "셀카와 함께 올린 일상 게시글",
+    "feedback": "카메라가 울고 있어요... 너무 잘 나와서 ㅋㅋㅋ"
+  },
+  {
+    "personaId": "witty-commenter",
+    "context": "야근 후 퇴근 인증 게시글",
+    "feedback": "퇴근은 했지만 영혼은 아직 회사에... 공감 100번 누르고 갑니다"
+  },
+  {
+    "personaId": "friendly-neighbor",
+    "context": "반려동물 사진을 올린 게시글",
+    "feedback": "아이고 귀여워라~ 이름이 뭐예요? 완전 사랑스럽네요ㅎㅎ"
+  },
+  {
+    "personaId": "friendly-neighbor",
+    "context": "여행 사진을 올린 게시글",
+    "feedback": "와 좋은 곳 다녀오셨네요~ 날씨도 좋아 보여서 기분 전환 제대로 하셨겠어요 😊"
+  },
+  {
+    "personaId": "tough-critic",
+    "context": "직접 만든 요리 사진을 올린 게시글",
+    "feedback": "플레이팅에 조금 더 신경 쓰면 훨씬 나아질 것 같아요. 색감 대비를 활용해보시는 건 어떨까요."
+  },
+  {
+    "personaId": "tough-critic",
+    "context": "새로 산 옷을 자랑하는 게시글",
+    "feedback": "소재는 괜찮아 보이는데, 핏이 체형과 잘 맞는지는 다른 각도에서도 확인해보시면 좋겠네요."
+  }
+]
