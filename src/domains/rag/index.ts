@@ -2,6 +2,7 @@ export { snsDialogueAdapter } from "./adapters/snsDialogueAdapter.ts";
 export { cultureTermUsageAdapter } from "./adapters/cultureTermUsageAdapter.ts";
 export { cultureTermDefAdapter } from "./adapters/cultureTermDefAdapter.ts";
 export { multiSessionDialogueAdapter } from "./adapters/multiSessionDialogueAdapter.ts";
+export { onlineColloquialAdapter, extractEntries } from "./adapters/onlineColloquialAdapter.ts";
 export { initEmbedder, embed, embedBatch, disposeEmbedder, getEmbeddingDim } from "./embedder.ts";
 export {
   addEntry,

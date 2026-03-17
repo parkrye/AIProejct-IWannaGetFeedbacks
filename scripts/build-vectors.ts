@@ -1,9 +1,14 @@
-import { readdirSync, readFileSync } from "fs";
-import { join } from "path";
+import { readdirSync, readFileSync, statSync } from "fs";
+import { join, basename } from "path";
 import { snsDialogueAdapter } from "../src/domains/rag/adapters/snsDialogueAdapter.ts";
 import { cultureTermUsageAdapter } from "../src/domains/rag/adapters/cultureTermUsageAdapter.ts";
 import { cultureTermDefAdapter } from "../src/domains/rag/adapters/cultureTermDefAdapter.ts";
 import { multiSessionDialogueAdapter } from "../src/domains/rag/adapters/multiSessionDialogueAdapter.ts";
+import {
+  onlineColloquialAdapter,
+  extractEntries,
+  type OnlineColloquialEntry,
+} from "../src/domains/rag/adapters/onlineColloquialAdapter.ts";
 import { initEmbedder, embed, disposeEmbedder } from "../src/domains/rag/embedder.ts";
 import { addEntry, saveToBinary, getEntryCount, loadFromBinary } from "../src/domains/rag/vectorStore.ts";
 import type { VectorMetadata, NormalizedDialogue, RawDataAdapter } from "../src/domains/rag/types.ts";
@@ -11,30 +16,33 @@ import { existsSync } from "fs";
 
 const OUTPUT_PATH = join(process.cwd(), "data", "vector-store", "dialogues.bin");
 const BATCH_LOG_INTERVAL = 1000;
+const DEFAULT_SAMPLE_PER_CATEGORY = 5000;
 
-type SourceType = "sns-dialogue" | "culture-usage" | "culture-def" | "multi-session";
+type SourceType = "sns-dialogue" | "culture-usage" | "culture-def" | "multi-session" | "online-colloquial";
 
 const SOURCE_TYPES: Record<SourceType, string> = {
   "sns-dialogue": "SNS 대화 데이터 (파일당 1건 JSON)",
   "culture-usage": "문화/게임 용례 데이터 (배열 JSON)",
   "culture-def": "문화/게임 용어 정의 데이터 (배열 JSON)",
   "multi-session": "한국어 멀티세션 대화 데이터 (파일당 1건 JSON)",
+  "online-colloquial": "온라인 구어체 말뭉치 (카테고리 폴더, 샘플링)",
 };
 
 function printUsage(): void {
-  console.log("Usage: tsx scripts/build-vectors.ts <source-type> <data-dir>");
+  console.log("Usage: tsx scripts/build-vectors.ts <source-type> <data-dir> [options]");
   console.log("");
   console.log("Source types:");
   for (const [key, desc] of Object.entries(SOURCE_TYPES)) {
-    console.log(`  ${key.padEnd(20)} ${desc}`);
+    console.log(`  ${key.padEnd(22)} ${desc}`);
   }
   console.log("");
   console.log("Options:");
-  console.log("  --append    기존 벡터 스토어에 추가 (기본: 덮어쓰기)");
+  console.log("  --append                     기존 벡터 스토어에 추가 (기본: 덮어쓰기)");
+  console.log(`  --sample-per-category=N      카테고리별 샘플 수 (기본: ${DEFAULT_SAMPLE_PER_CATEGORY})`);
   console.log("");
   console.log("Examples:");
   console.log("  tsx scripts/build-vectors.ts sns-dialogue 'C:\\path\\to\\VL'");
-  console.log("  tsx scripts/build-vectors.ts culture-usage 'C:\\path\\to\\VL' --append");
+  console.log("  tsx scripts/build-vectors.ts online-colloquial 'C:\\path\\to\\TL1' --append --sample-per-category=5000");
 }
 
 function toMetadata(dialogue: NormalizedDialogue): VectorMetadata {
@@ -128,6 +136,68 @@ async function processArrayJson<T>(
   return { processed, errors };
 }
 
+function shuffleArray<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+async function processOnlineColloquial(
+  dataDir: string,
+  samplePerCategory: number,
+): Promise<{ processed: number; errors: number }> {
+  const categories = readdirSync(dataDir).filter((d) =>
+    statSync(join(dataDir, d)).isDirectory(),
+  );
+
+  console.log(`카테고리 수: ${categories.length} (${categories.join(", ")})`);
+  console.log(`카테고리별 샘플: ${samplePerCategory}건`);
+
+  const totalTarget = categories.length * samplePerCategory;
+  const startTime = Date.now();
+  let processed = 0;
+  let errors = 0;
+
+  for (const category of categories) {
+    const catDir = join(dataDir, category);
+    const files = readdirSync(catDir).filter((f) => f.endsWith(".json"));
+
+    console.log(`\n[${category}] 파일 ${files.length}개에서 항목 추출 중...`);
+
+    const allEntries: OnlineColloquialEntry[] = [];
+
+    for (const file of files) {
+      try {
+        const raw = JSON.parse(readFileSync(join(catDir, file), "utf-8"));
+        const entries = extractEntries(raw, category);
+        allEntries.push(...entries);
+      } catch (error) {
+        errors++;
+        if (errors <= 10) console.warn(`오류 (${file}):`, (error as Error).message);
+      }
+    }
+
+    console.log(`  추출: ${allEntries.length}건 → 샘플링: ${Math.min(samplePerCategory, allEntries.length)}건`);
+
+    const sampled = shuffleArray([...allEntries]).slice(0, samplePerCategory);
+
+    for (const entry of sampled) {
+      try {
+        const dialogue = onlineColloquialAdapter.normalize(entry);
+        await processEntry(dialogue);
+        processed++;
+        logProgress(processed, totalTarget, startTime);
+      } catch (error) {
+        errors++;
+      }
+    }
+  }
+
+  return { processed, errors };
+}
+
 function logProgress(processed: number, total: number, startTime: number): void {
   if (processed % BATCH_LOG_INTERVAL !== 0) return;
   const elapsed = (Date.now() - startTime) / 1000;
@@ -145,10 +215,18 @@ function formatTime(seconds: number): string {
   return `${(seconds / 3600).toFixed(1)}시간`;
 }
 
+function parseFlag(flags: string[], prefix: string, defaultValue: number): number {
+  const flag = flags.find((f) => f.startsWith(prefix));
+  if (!flag) return defaultValue;
+  const value = parseInt(flag.split("=")[1], 10);
+  return isNaN(value) ? defaultValue : value;
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
   const flags = process.argv.slice(2).filter((a) => a.startsWith("--"));
   const append = flags.includes("--append");
+  const samplePerCategory = parseFlag(flags, "--sample-per-category=", DEFAULT_SAMPLE_PER_CATEGORY);
 
   if (args.length < 2) {
     printUsage();
@@ -194,6 +272,9 @@ async function main(): Promise<void> {
       break;
     case "culture-def":
       result = await processArrayJson(dataDir, cultureTermDefAdapter);
+      break;
+    case "online-colloquial":
+      result = await processOnlineColloquial(dataDir, samplePerCategory);
       break;
   }
 
