@@ -1,5 +1,5 @@
 import type { Plugin } from "vite";
-import { createApp } from "./index.ts";
+import { createApp } from "./app.ts";
 
 export function apiServerPlugin(): Plugin {
   return {
