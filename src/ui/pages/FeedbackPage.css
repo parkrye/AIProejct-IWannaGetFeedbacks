@@ -15,6 +15,48 @@
   gap: 16px;
 }
 
+.feedback-page__mode-selector {
+  padding: 12px 16px;
+  background: #1a1a2e;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.feedback-page__mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: #16213e;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.feedback-page__mode-tab {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  color: #888;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.feedback-page__mode-tab:hover {
+  color: #c0c0ff;
+}
+
+.feedback-page__mode-tab--active {
+  background: #6c63ff;
+  color: white;
+}
+
+.feedback-page__mode-desc {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #777;
+}
+
 .feedback-page__output {
   min-height: 400px;
 }

@@ -110,6 +110,10 @@ export const DEFAULT_GENERATION_PARAMS: GenerationParams = {
   formality: 5,
 };
 
+// ── Selection Mode ──
+
+export type SelectionMode = "dynamic" | "group" | "manual";
+
 // ── Generation ──
 
 export interface GenerationRequest {
@@ -117,6 +121,7 @@ export interface GenerationRequest {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly selectionMode?: SelectionMode;
   readonly generationParams?: GenerationParams;
 }
 
@@ -155,6 +160,7 @@ export interface GenerateRequest {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly selectionMode?: SelectionMode;
   readonly generationParams?: GenerationParams;
 }
 

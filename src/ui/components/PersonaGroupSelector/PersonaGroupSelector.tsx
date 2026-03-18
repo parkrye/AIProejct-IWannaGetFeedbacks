@@ -10,6 +10,7 @@ interface PersonaGroupSelectorProps {
   readonly onSelectAll: () => void;
   readonly onDeselectAll: () => void;
   readonly isLoading: boolean;
+  readonly showGroups?: boolean;
 }
 
 export function PersonaGroupSelector({
@@ -21,6 +22,7 @@ export function PersonaGroupSelector({
   onSelectAll,
   onDeselectAll,
   isLoading,
+  showGroups = true,
 }: PersonaGroupSelectorProps) {
   if (isLoading) {
     return <div className="pg-selector__loading">페르소나 로딩 중...</div>;
@@ -36,7 +38,7 @@ export function PersonaGroupSelector({
         </div>
       </div>
 
-      {groups.length > 0 && (
+      {showGroups && groups.length > 0 && (
         <div className="pg-selector__groups">
           <span className="pg-selector__groups-label">그룹:</span>
           {groups.map((group) => (

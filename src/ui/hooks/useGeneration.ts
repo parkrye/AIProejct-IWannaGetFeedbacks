@@ -4,6 +4,7 @@ import type {
   ImageLabel,
   TextAnalysisResult,
   GenerationParams,
+  SelectionMode,
 } from "../../shared/types.ts";
 import { API_ROUTES } from "../../shared/constants.ts";
 
@@ -29,6 +30,7 @@ interface GenerateParams {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly selectionMode?: SelectionMode;
   readonly generationParams?: GenerationParams;
 }
 
