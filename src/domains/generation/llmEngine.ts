@@ -6,7 +6,22 @@ let context: LlamaContext | null = null;
 
 export async function initializeModel(config: ModelConfig): Promise<void> {
   const llama = await getLlama({ gpu: false });
-  model = await llama.loadModel({ modelPath: config.modelPath });
+
+  let lastLoggedPercent = -1;
+  model = await llama.loadModel({
+    modelPath: config.modelPath,
+    onLoadProgress(loadProgress: number) {
+      const percent = Math.round(loadProgress * 100);
+      if (percent % 5 === 0 && percent !== lastLoggedPercent) {
+        lastLoggedPercent = percent;
+        const bar = "=".repeat(Math.floor(percent / 2)).padEnd(50, " ");
+        process.stdout.write(`\r  Model loading: [${bar}] ${percent}%`);
+        if (percent === 100) process.stdout.write("\n");
+      }
+    },
+  });
+
+  console.log("  Creating context...");
   context = await model.createContext({ contextSize: config.contextSize });
 }
 
