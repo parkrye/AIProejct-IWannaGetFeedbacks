@@ -1,0 +1,83 @@
+.persona-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  background: #1a1a2e;
+  border-radius: 12px;
+  border: 1px solid #333;
+  max-width: 600px;
+}
+
+.persona-form__title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #e0e0e0;
+}
+
+.persona-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.persona-form__field span {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.persona-form__field input,
+.persona-form__field select,
+.persona-form__field textarea {
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #16213e;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.persona-form__field input:focus,
+.persona-form__field select:focus,
+.persona-form__field textarea:focus {
+  outline: none;
+  border-color: #6c63ff;
+}
+
+.persona-form__field textarea {
+  resize: vertical;
+}
+
+.persona-form__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.persona-form__btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.persona-form__btn--submit {
+  background: #6c63ff;
+  color: white;
+}
+
+.persona-form__btn--submit:hover {
+  background: #5a52d5;
+}
+
+.persona-form__btn--cancel {
+  background: transparent;
+  color: #999;
+  border: 1px solid #555;
+}
+
+.persona-form__btn--cancel:hover {
+  background: #222;
+}

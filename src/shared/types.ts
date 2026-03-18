@@ -105,6 +105,23 @@ export interface GenerateRequest {
   readonly personaIds: readonly string[];
 }
 
+// ── Persona CRUD ──
+
+export interface CreatePersonaRequest {
+  readonly category: string;
+  readonly name: string;
+  readonly traits: PersonaTraits;
+  readonly promptHint: string;
+  readonly examplePatterns: readonly string[];
+}
+
+export interface UpdatePersonaRequest {
+  readonly name?: string;
+  readonly traits?: Partial<PersonaTraits>;
+  readonly promptHint?: string;
+  readonly examplePatterns?: readonly string[];
+}
+
 // ── Model Config ──
 
 export interface ModelConfig {

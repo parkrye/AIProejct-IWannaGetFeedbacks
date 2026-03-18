@@ -3,7 +3,14 @@ import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { analyzeRoute } from "./routes/analyzeRoute.ts";
 import { generateRoute } from "./routes/generateRoute.ts";
-import { listPersonasRoute, listCategoriesRoute } from "./routes/personaRoute.ts";
+import {
+  listPersonasRoute,
+  listCategoriesRoute,
+  getPersonaRoute,
+  createPersonaRoute,
+  updatePersonaRoute,
+  deletePersonaRoute,
+} from "./routes/personaRoute.ts";
 import { loadPersonasFromDirectory } from "../domains/persona/index.ts";
 import { loadFeedbackDataFromFile } from "../domains/feedback-data/index.ts";
 import { initializeModel } from "../domains/generation/index.ts";
@@ -20,6 +27,10 @@ export function createApp(): express.Express {
   app.post("/api/generate", generateRoute);
   app.get("/api/personas", listPersonasRoute);
   app.get("/api/personas/categories", listCategoriesRoute);
+  app.get("/api/personas/:id", getPersonaRoute);
+  app.post("/api/personas", createPersonaRoute);
+  app.put("/api/personas/:id", updatePersonaRoute);
+  app.delete("/api/personas/:id", deletePersonaRoute);
 
   return app;
 }

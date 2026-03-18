@@ -2,6 +2,7 @@ export const API_ROUTES = {
   ANALYZE: "/api/analyze",
   GENERATE: "/api/generate",
   PERSONAS: "/api/personas",
+  PERSONA_BY_ID: (id: string) => `/api/personas/${id}`,
 } as const;
 
 export const DEFAULT_MODEL_PATH = "./models/qwen2.5-7b-instruct-q4_k_m.gguf";

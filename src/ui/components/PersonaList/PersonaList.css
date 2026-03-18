@@ -1,0 +1,134 @@
+.persona-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.persona-list__title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #e0e0e0;
+}
+
+.persona-list__add-btn {
+  padding: 10px 20px;
+  background: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.persona-list__add-btn:hover {
+  background: #5a52d5;
+}
+
+.persona-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.persona-list__card {
+  padding: 20px;
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.persona-list__card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.persona-list__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #6c63ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.persona-list__name {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #e0e0e0;
+}
+
+.persona-list__traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.persona-list__tag {
+  padding: 3px 10px;
+  background: #2d2d5e;
+  color: #c0c0ff;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.persona-list__hint {
+  margin: 0;
+  color: #999;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.persona-list__patterns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.persona-list__pattern {
+  font-size: 0.8rem;
+  color: #777;
+  font-style: italic;
+}
+
+.persona-list__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.persona-list__btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.persona-list__btn--edit {
+  background: #2d2d5e;
+  color: #c0c0ff;
+}
+
+.persona-list__btn--edit:hover {
+  background: #3d3d7e;
+}
+
+.persona-list__btn--delete {
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #5a2020;
+}
+
+.persona-list__btn--delete:hover {
+  background: #2d1515;
+}

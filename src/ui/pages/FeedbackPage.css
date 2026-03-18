@@ -1,0 +1,26 @@
+.feedback-page__error {
+  padding: 0 20px 0;
+}
+
+.feedback-page__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px 20px;
+}
+
+.feedback-page__input {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedback-page__output {
+  min-height: 400px;
+}
+
+@media (max-width: 768px) {
+  .feedback-page__content {
+    grid-template-columns: 1fr;
+  }
+}
