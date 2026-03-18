@@ -82,7 +82,8 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
         sendEvent({ personaId: persona.id, token, done: false });
       });
     } catch (error) {
-      const fallback = generateFallbackResponse(persona.name);
+      console.error(`생성 오류 [${persona.id}]:`, error);
+      const fallback = generateFallbackResponse(persona.name, error);
       sendEvent({ personaId: persona.id, token: fallback, done: false });
     }
 
@@ -93,6 +94,7 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
   res.end();
 }
 
-function generateFallbackResponse(personaName: string): string {
-  return `[${personaName}] 모델이 로드되지 않았습니다. models/ 디렉터리에 GGUF 모델을 배치해주세요.`;
+function generateFallbackResponse(personaName: string, error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return `[${personaName}] 생성 실패: ${message}`;
 }

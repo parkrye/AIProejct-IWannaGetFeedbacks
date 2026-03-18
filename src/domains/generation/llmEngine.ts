@@ -5,7 +5,7 @@ let model: LlamaModel | null = null;
 let context: LlamaContext | null = null;
 
 export async function initializeModel(config: ModelConfig): Promise<void> {
-  const llama = await getLlama();
+  const llama = await getLlama({ gpu: false });
   model = await llama.loadModel({ modelPath: config.modelPath });
   context = await model.createContext({ contextSize: config.contextSize });
 }
