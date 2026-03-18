@@ -107,6 +107,7 @@ export function FeedbackPage() {
             feedbacks={generation.feedbacks}
             isGenerating={generation.isGenerating}
             error={generation.error}
+            progress={generation.progress}
             onRetry={handleRetry}
             onDismissError={handleDismissError}
           />

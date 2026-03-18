@@ -59,7 +59,11 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
-  for (const persona of personas) {
+  const totalPersonas = personas.length;
+  const maxTokens = modelConfig.maxTokens;
+
+  for (let i = 0; i < personas.length; i++) {
+    const persona = personas[i];
     const fewShotExamples = getFewShotExamples(persona.id);
     const prompt = buildPrompt({
       postText: body.postText,
@@ -75,11 +79,24 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
       res.write(`data: ${JSON.stringify(data)}\n\n`);
     };
 
-    sendEvent({ personaId: persona.id, personaName: persona.name, token: "", done: false });
+    sendEvent({
+      personaId: persona.id,
+      personaName: persona.name,
+      token: "",
+      done: false,
+      progress: { current: i, total: totalPersonas, tokenCount: 0, maxTokens },
+    });
 
+    let tokenCount = 0;
     try {
       await generateWithCallback(prompt.system, prompt.user, modelConfig, (token) => {
-        sendEvent({ personaId: persona.id, token, done: false });
+        tokenCount++;
+        sendEvent({
+          personaId: persona.id,
+          token,
+          done: false,
+          progress: { current: i, total: totalPersonas, tokenCount, maxTokens },
+        });
       });
     } catch (error) {
       console.error(`생성 오류 [${persona.id}]:`, error);
@@ -87,7 +104,12 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
       sendEvent({ personaId: persona.id, token: fallback, done: false });
     }
 
-    sendEvent({ personaId: persona.id, token: "", done: true });
+    sendEvent({
+      personaId: persona.id,
+      token: "",
+      done: true,
+      progress: { current: i + 1, total: totalPersonas, tokenCount, maxTokens },
+    });
   }
 
   res.write("data: [DONE]\n\n");

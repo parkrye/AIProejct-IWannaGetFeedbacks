@@ -3,14 +3,21 @@ import type {
   GeneratedFeedback,
   ImageLabel,
   TextAnalysisResult,
-  GenerationStreamEvent,
 } from "../../shared/types.ts";
 import { API_ROUTES } from "../../shared/constants.ts";
+
+export interface GenerationProgress {
+  readonly currentPersona: number;
+  readonly totalPersonas: number;
+  readonly tokenCount: number;
+  readonly maxTokens: number;
+}
 
 interface UseGenerationReturn {
   readonly feedbacks: ReadonlyMap<string, GeneratedFeedback>;
   readonly isGenerating: boolean;
   readonly error: string | null;
+  readonly progress: GenerationProgress | null;
   readonly generate: (params: GenerateParams) => Promise<void>;
   readonly cancel: () => void;
   readonly reset: () => void;
@@ -23,16 +30,31 @@ interface GenerateParams {
   readonly personaIds: readonly string[];
 }
 
+interface StreamEvent {
+  personaId: string;
+  personaName?: string;
+  token: string;
+  done: boolean;
+  progress?: {
+    current: number;
+    total: number;
+    tokenCount: number;
+    maxTokens: number;
+  };
+}
+
 export function useGeneration(): UseGenerationReturn {
   const [feedbacks, setFeedbacks] = useState<Map<string, GeneratedFeedback>>(new Map());
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<GenerationProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const generate = useCallback(async (params: GenerateParams) => {
     setIsGenerating(true);
     setError(null);
     setFeedbacks(new Map());
+    setProgress(null);
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -69,7 +91,17 @@ export function useGeneration(): UseGenerationReturn {
           if (data === "[DONE]") continue;
 
           try {
-            const event = JSON.parse(data) as GenerationStreamEvent & { personaName?: string };
+            const event = JSON.parse(data) as StreamEvent;
+
+            if (event.progress) {
+              setProgress({
+                currentPersona: event.progress.current,
+                totalPersonas: event.progress.total,
+                tokenCount: event.progress.tokenCount,
+                maxTokens: event.progress.maxTokens,
+              });
+            }
+
             setFeedbacks((prev) => {
               const next = new Map(prev);
               const existing = next.get(event.personaId);
@@ -91,6 +123,7 @@ export function useGeneration(): UseGenerationReturn {
       }
     } finally {
       setIsGenerating(false);
+      setProgress(null);
       abortRef.current = null;
     }
   }, []);
@@ -103,7 +136,8 @@ export function useGeneration(): UseGenerationReturn {
     cancel();
     setFeedbacks(new Map());
     setError(null);
+    setProgress(null);
   }, [cancel]);
 
-  return { feedbacks, isGenerating, error, generate, cancel, reset };
+  return { feedbacks, isGenerating, error, progress, generate, cancel, reset };
 }

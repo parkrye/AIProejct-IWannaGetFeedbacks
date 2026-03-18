@@ -13,7 +13,7 @@ describe("FeedbackDisplay", () => {
   it("should show empty state when no feedbacks and not generating", () => {
     // when
     render(
-      <FeedbackDisplay feedbacks={new Map()} isGenerating={false} error={null} />,
+      <FeedbackDisplay feedbacks={new Map()} isGenerating={false} error={null} progress={null} />,
     );
 
     // then
@@ -23,7 +23,7 @@ describe("FeedbackDisplay", () => {
   it("should show loading spinner when generating with no feedbacks yet", () => {
     // when
     render(
-      <FeedbackDisplay feedbacks={new Map()} isGenerating={true} error={null} />,
+      <FeedbackDisplay feedbacks={new Map()} isGenerating={true} error={null} progress={null} />,
     );
 
     // then
@@ -40,6 +40,7 @@ describe("FeedbackDisplay", () => {
         feedbacks={new Map()}
         isGenerating={false}
         error="서버 연결 실패"
+        progress={null}
         onRetry={onRetry}
       />,
     );
@@ -59,7 +60,7 @@ describe("FeedbackDisplay", () => {
 
     // when
     render(
-      <FeedbackDisplay feedbacks={feedbacks} isGenerating={false} error={null} />,
+      <FeedbackDisplay feedbacks={feedbacks} isGenerating={false} error={null} progress={null} />,
     );
 
     // then
@@ -77,7 +78,7 @@ describe("FeedbackDisplay", () => {
 
     // when
     render(
-      <FeedbackDisplay feedbacks={feedbacks} isGenerating={true} error={null} />,
+      <FeedbackDisplay feedbacks={feedbacks} isGenerating={true} error={null} progress={null} />,
     );
 
     // then
@@ -96,6 +97,7 @@ describe("FeedbackDisplay", () => {
         feedbacks={feedbacks}
         isGenerating={false}
         error="일부 생성 실패"
+        progress={null}
       />,
     );
 
