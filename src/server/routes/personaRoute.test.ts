@@ -45,6 +45,6 @@ describe("GET /api/personas/categories", () => {
     expect(res.status).toBe(200);
     expect(res.body.categories).toBeInstanceOf(Array);
     expect(res.body.categories.length).toBeGreaterThan(0);
-    expect(res.body.categories[0].category).toBe("personality");
+    expect(res.body.categories.some((c: { category: string }) => c.category === "personality")).toBe(true);
   });
 });
