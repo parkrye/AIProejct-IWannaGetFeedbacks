@@ -122,6 +122,7 @@ export interface GenerationRequest {
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
   readonly selectionMode?: SelectionMode;
+  readonly feedbackCount?: number;
   readonly generationParams?: GenerationParams;
 }
 
@@ -161,6 +162,7 @@ export interface GenerateRequest {
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
   readonly selectionMode?: SelectionMode;
+  readonly feedbackCount?: number;
   readonly generationParams?: GenerationParams;
 }
 

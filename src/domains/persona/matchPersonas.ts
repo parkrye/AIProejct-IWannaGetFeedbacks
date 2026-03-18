@@ -3,12 +3,8 @@ import { getAllPersonas } from "./personaRegistry.ts";
 
 const MIN_MATCH_SCORE = 0.1;
 const DEFAULT_DYNAMIC_COUNT = 3;
-
-const GROUP_THRESHOLD_SMALL = 5;
-const GROUP_THRESHOLD_MEDIUM = 10;
-const GROUP_SELECT_MEDIUM = 5;
-const GROUP_SELECT_LARGE_MATCHED = 4;
-const GROUP_SELECT_LARGE_RANDOM = 4;
+const RANDOM_THRESHOLD_MULTIPLIER = 2;
+const MATCHED_RATIO = 0.6;
 
 interface ScoredPersona {
   readonly persona: Persona;
@@ -37,22 +33,29 @@ export function selectFromGroup(
   groupPersonas: Persona[],
   textAnalysis: TextAnalysisResult,
   postText: string,
+  requestedCount: number,
 ): Persona[] {
-  if (groupPersonas.length <= GROUP_THRESHOLD_SMALL) {
+  const n = Math.max(1, Math.min(10, requestedCount));
+
+  if (groupPersonas.length <= n) {
     return groupPersonas;
   }
 
+  const m = n * RANDOM_THRESHOLD_MULTIPLIER;
   const scored = scorePersonas(groupPersonas, textAnalysis, postText);
 
-  if (groupPersonas.length <= GROUP_THRESHOLD_MEDIUM) {
-    return scored.slice(0, GROUP_SELECT_MEDIUM).map((s) => s.persona);
+  if (groupPersonas.length < n + m) {
+    return scored.slice(0, n).map((s) => s.persona);
   }
 
-  const matched = scored.slice(0, GROUP_SELECT_LARGE_MATCHED);
+  const matchedCount = Math.ceil(n * MATCHED_RATIO);
+  const randomCount = n - matchedCount;
+
+  const matched = scored.slice(0, matchedCount);
   const matchedIds = new Set(matched.map((s) => s.persona.id));
 
   const remaining = groupPersonas.filter((p) => !matchedIds.has(p.id));
-  const randomPicks = shuffleArray([...remaining]).slice(0, GROUP_SELECT_LARGE_RANDOM);
+  const randomPicks = shuffleArray([...remaining]).slice(0, randomCount);
 
   return [...matched.map((s) => s.persona), ...randomPicks];
 }

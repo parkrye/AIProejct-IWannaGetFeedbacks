@@ -30,6 +30,7 @@ export function FeedbackPage() {
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [genParams, setGenParams] = useState<GenerationParams>(DEFAULT_GENERATION_PARAMS);
   const [selectionMode, setSelectionMode] = useState<SelectionMode>("manual");
+  const [feedbackCount, setFeedbackCount] = useState(5);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const lastPostRef = useRef<SnsPost | null>(null);
 
@@ -74,6 +75,7 @@ export function FeedbackPage() {
         textAnalysis: textResult,
         personaIds: selectionMode === "dynamic" ? [] : personas.selected,
         selectionMode,
+        feedbackCount,
         generationParams: genParams,
       });
     },
@@ -129,6 +131,20 @@ export function FeedbackPage() {
               ))}
             </div>
             <p className="feedback-page__mode-desc">{MODE_DESCS[selectionMode]}</p>
+
+            {selectionMode !== "manual" && (
+              <div className="feedback-page__count-selector">
+                <label>피드백 인원</label>
+                <div className="feedback-page__count-row">
+                  <input
+                    type="range" min={1} max={10} value={feedbackCount}
+                    onChange={(e) => setFeedbackCount(Number(e.target.value))}
+                    className="feedback-page__count-slider"
+                  />
+                  <span className="feedback-page__count-value">{feedbackCount}명</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {selectionMode !== "dynamic" && (

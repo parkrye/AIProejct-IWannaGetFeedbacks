@@ -74,15 +74,17 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
 
   let personas: Persona[];
 
+  const feedbackCount = Math.max(1, Math.min(10, body.feedbackCount ?? 5));
+
   if (selectionMode === "dynamic") {
-    personas = matchPersonasByContent(body.textAnalysis, body.postText);
+    personas = matchPersonasByContent(body.textAnalysis, body.postText, feedbackCount);
   } else if (selectionMode === "group") {
     if (!body.personaIds || body.personaIds.length === 0) {
       res.status(400).json({ error: "personaIds는 필수입니다." });
       return;
     }
     const groupMembers = getPersonasByIds(body.personaIds);
-    personas = selectFromGroup(groupMembers, body.textAnalysis, body.postText);
+    personas = selectFromGroup(groupMembers, body.textAnalysis, body.postText, feedbackCount);
   } else {
     if (!body.personaIds || body.personaIds.length === 0) {
       res.status(400).json({ error: "personaIds는 필수입니다." });

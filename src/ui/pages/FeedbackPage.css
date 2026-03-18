@@ -57,6 +57,36 @@
   color: #777;
 }
 
+.feedback-page__count-selector {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.feedback-page__count-selector label {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.feedback-page__count-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.feedback-page__count-slider {
+  flex: 1;
+  accent-color: #6c63ff;
+}
+
+.feedback-page__count-value {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #6c63ff;
+  min-width: 35px;
+}
+
 .feedback-page__output {
   min-height: 400px;
 }
