@@ -60,6 +60,8 @@ export function createPersonaRoute(req: Request, res: Response): void {
     id,
     name: body.name,
     traits: body.traits,
+    ...(body.profile && { profile: body.profile }),
+    ...(body.params && { params: body.params }),
     promptHint: body.promptHint,
     examplePatterns: body.examplePatterns ?? [],
   };

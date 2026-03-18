@@ -1,5 +1,7 @@
 import type {
   Persona,
+  PersonaProfile,
+  PersonaParams,
   TextAnalysisResult,
   ImageLabel,
   PromptTemplate,
@@ -33,8 +35,10 @@ export function buildPrompt(context: PromptContext): { system: string; user: str
     .replace("{{examplePatterns}}", context.persona.examplePatterns.join(" / "));
 
   const ragSection = formatRagResults(context.ragResults ?? []);
-  const paramsSection = formatGenerationParams(context.generationParams);
-  const sections = [ragSection, fewShotSection, paramsSection, user].filter(Boolean);
+  const profileSection = formatPersonaProfile(context.persona.profile);
+  const mergedParams = mergeParams(context.generationParams, context.persona.params);
+  const paramsSection = formatGenerationParams(mergedParams);
+  const sections = [ragSection, fewShotSection, profileSection, paramsSection, user].filter(Boolean);
   const fullUser = sections.join("\n\n");
 
   return {
@@ -96,6 +100,37 @@ function formatGenerationParams(params?: GenerationParams): string {
 
   if (instructions.length === 0) return "";
   return `[댓글 스타일 지시]\n${instructions.join("\n")}`;
+}
+
+function formatPersonaProfile(profile?: PersonaProfile): string {
+  if (!profile) return "";
+
+  const lines: string[] = [];
+  if (profile.age) lines.push(`나이: ${profile.age}세`);
+  if (profile.gender) lines.push(`성별: ${profile.gender}`);
+  if (profile.interests && profile.interests.length > 0) {
+    lines.push(`관심사: ${profile.interests.join(", ")}`);
+  }
+
+  if (lines.length === 0) return "";
+  return `[댓글 작성자 프로필]\n${lines.join("\n")}`;
+}
+
+function mergeParams(
+  globalParams?: GenerationParams,
+  personaParams?: PersonaParams,
+): GenerationParams | undefined {
+  if (!globalParams && !personaParams) return undefined;
+  if (!globalParams) return personaParams as GenerationParams;
+  if (!personaParams) return globalParams;
+
+  return {
+    positivity: personaParams.positivity ?? globalParams.positivity,
+    nonsense: personaParams.nonsense ?? globalParams.nonsense,
+    verbosity: personaParams.verbosity ?? globalParams.verbosity,
+    emoji: personaParams.emoji ?? globalParams.emoji,
+    formality: personaParams.formality ?? globalParams.formality,
+  };
 }
 
 function translateSentiment(sentiment: string): string {

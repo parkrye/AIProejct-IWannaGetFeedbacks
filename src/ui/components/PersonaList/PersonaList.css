@@ -81,6 +81,20 @@
   font-size: 0.75rem;
 }
 
+.persona-list__interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.persona-list__interest {
+  padding: 2px 8px;
+  background: #1a2a1a;
+  color: #88cc88;
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+
 .persona-list__hint {
   margin: 0;
   color: #999;

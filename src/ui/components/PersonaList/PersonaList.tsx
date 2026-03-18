@@ -50,7 +50,17 @@ export function PersonaList({ personas, onEdit, onDelete, onAdd }: PersonaListPr
               <span className="persona-list__tag">{TONE_LABELS[persona.traits.tone] ?? persona.traits.tone}</span>
               <span className="persona-list__tag">{EMOTION_LABELS[persona.traits.emotionBias] ?? persona.traits.emotionBias}</span>
               <span className="persona-list__tag">{FORMALITY_LABELS[persona.traits.formality] ?? persona.traits.formality}</span>
+              {persona.profile?.age && <span className="persona-list__tag">{persona.profile.age}세</span>}
+              {persona.profile?.gender && <span className="persona-list__tag">{persona.profile.gender}</span>}
             </div>
+
+            {persona.profile?.interests && persona.profile.interests.length > 0 && (
+              <div className="persona-list__interests">
+                {persona.profile.interests.map((interest) => (
+                  <span key={interest} className="persona-list__interest">{interest}</span>
+                ))}
+              </div>
+            )}
 
             <p className="persona-list__hint">{persona.promptHint}</p>
 

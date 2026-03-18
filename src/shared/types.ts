@@ -39,6 +39,15 @@ export interface TextAnalysisResult {
 export type ToneType = "enthusiastic" | "calm" | "sarcastic" | "analytical" | "friendly";
 export type EmotionBias = "positive" | "negative" | "neutral";
 export type FormalityLevel = "formal" | "casual" | "mixed";
+export type GenderType = "남성" | "여성" | "중성적";
+
+export const INTEREST_OPTIONS = [
+  "음식", "여행", "패션", "뷰티", "운동", "게임", "음악", "영화", "독서",
+  "반려동물", "IT/테크", "경제", "정치", "연애", "육아", "요리", "사진",
+  "자동차", "인테리어", "주식/투자", "학업", "직장생활",
+] as const;
+
+export type InterestType = typeof INTEREST_OPTIONS[number] | string;
 
 export interface PersonaTraits {
   readonly tone: ToneType;
@@ -46,10 +55,26 @@ export interface PersonaTraits {
   readonly formality: FormalityLevel;
 }
 
+export interface PersonaProfile {
+  readonly age?: number;
+  readonly gender?: GenderType;
+  readonly interests?: readonly string[];
+}
+
+export interface PersonaParams {
+  readonly positivity?: number;
+  readonly nonsense?: number;
+  readonly verbosity?: number;
+  readonly emoji?: number;
+  readonly formality?: number;
+}
+
 export interface Persona {
   readonly id: string;
   readonly name: string;
   readonly traits: PersonaTraits;
+  readonly profile?: PersonaProfile;
+  readonly params?: PersonaParams;
   readonly promptHint: string;
   readonly examplePatterns: readonly string[];
 }
@@ -139,6 +164,8 @@ export interface CreatePersonaRequest {
   readonly category: string;
   readonly name: string;
   readonly traits: PersonaTraits;
+  readonly profile?: PersonaProfile;
+  readonly params?: PersonaParams;
   readonly promptHint: string;
   readonly examplePatterns: readonly string[];
 }
@@ -146,6 +173,8 @@ export interface CreatePersonaRequest {
 export interface UpdatePersonaRequest {
   readonly name?: string;
   readonly traits?: Partial<PersonaTraits>;
+  readonly profile?: PersonaProfile;
+  readonly params?: PersonaParams;
   readonly promptHint?: string;
   readonly examplePatterns?: readonly string[];
 }

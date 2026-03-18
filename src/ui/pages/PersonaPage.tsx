@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Persona } from "../../shared/types.ts";
+import type { Persona, PersonaProfile, PersonaParams } from "../../shared/types.ts";
 import { PersonaList } from "../components/PersonaList/index.ts";
 import { PersonaForm, type PersonaFormData } from "../components/PersonaForm/index.ts";
 import { ErrorBanner } from "../components/ErrorBanner/index.ts";
@@ -8,6 +8,28 @@ import { usePersonaCrud } from "../hooks/usePersonaCrud.ts";
 import "./PersonaPage.css";
 
 type PageMode = "list" | "create" | "edit";
+
+function buildProfile(data: PersonaFormData): PersonaProfile | undefined {
+  const profile: PersonaProfile = {
+    age: data.age,
+    gender: data.gender,
+    interests: data.interests.length > 0 ? data.interests : undefined,
+  };
+  if (!profile.age && !profile.gender && !profile.interests) return undefined;
+  return profile;
+}
+
+function buildParams(data: PersonaFormData): PersonaParams | undefined {
+  const params: PersonaParams = {
+    positivity: data.paramPositivity,
+    nonsense: data.paramNonsense,
+    verbosity: data.paramVerbosity,
+    emoji: data.paramEmoji,
+    formality: data.paramFormality,
+  };
+  const hasAny = Object.values(params).some((v) => v !== undefined);
+  return hasAny ? params : undefined;
+}
 
 export function PersonaPage() {
   const crud = usePersonaCrud();
@@ -41,6 +63,8 @@ export function PersonaPage() {
         category: data.category,
         name: data.name,
         traits: { tone: data.tone, emotionBias: data.emotionBias, formality: data.formality },
+        profile: buildProfile(data),
+        params: buildParams(data),
         promptHint: data.promptHint,
         examplePatterns: data.examplePatterns,
       });
@@ -48,6 +72,8 @@ export function PersonaPage() {
       await crud.updatePersona(editingPersona.id, {
         name: data.name,
         traits: { tone: data.tone, emotionBias: data.emotionBias, formality: data.formality },
+        profile: buildProfile(data),
+        params: buildParams(data),
         promptHint: data.promptHint,
         examplePatterns: data.examplePatterns,
       });
