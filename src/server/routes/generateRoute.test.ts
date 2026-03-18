@@ -62,7 +62,7 @@ describe("POST /api/generate", () => {
       postText: "오늘 카페에서 커피를 마셨다.",
       imageLabels: [],
       textAnalysis: { keywords: ["카페", "커피"], sentiment: "positive", topics: ["카페"] },
-      personaIds: ["cheerful-supporter"],
+      personaIds: ["hype-teen"],
     };
 
     // when
@@ -80,7 +80,7 @@ describe("POST /api/generate", () => {
     expect(res.status).toBe(200);
     const body2 = res.body as string;
     expect(body2).toContain("data: ");
-    expect(body2).toContain("cheerful-supporter");
+    expect(body2).toContain("hype-teen");
     expect(body2).toContain("[DONE]");
   });
 });
