@@ -5,7 +5,7 @@ import type {
   GenerateRequest, PromptTemplate, ModelConfig,
   Persona, GenerationParams, PersonaParams,
 } from "../../shared/types.ts";
-import { getPersonasByIds, matchPersonasByContent } from "../../domains/persona/index.ts";
+import { getPersonasByIds, matchPersonasByContent, selectFromGroup } from "../../domains/persona/index.ts";
 import { getFewShotExamples } from "../../domains/feedback-data/index.ts";
 import { buildPrompt } from "../../domains/generation/promptBuilder.ts";
 import { generateWithCallback } from "../../domains/generation/llmEngine.ts";
@@ -76,6 +76,13 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
 
   if (selectionMode === "dynamic") {
     personas = matchPersonasByContent(body.textAnalysis, body.postText);
+  } else if (selectionMode === "group") {
+    if (!body.personaIds || body.personaIds.length === 0) {
+      res.status(400).json({ error: "personaIds는 필수입니다." });
+      return;
+    }
+    const groupMembers = getPersonasByIds(body.personaIds);
+    personas = selectFromGroup(groupMembers, body.textAnalysis, body.postText);
   } else {
     if (!body.personaIds || body.personaIds.length === 0) {
       res.status(400).json({ error: "personaIds는 필수입니다." });
