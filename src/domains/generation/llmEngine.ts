@@ -65,20 +65,25 @@ export async function generateWithCallback(
   }
 
   const { LlamaChatSession } = await import("node-llama-cpp");
-  const session = new LlamaChatSession({ contextSequence: context.getSequence() });
+  const sequence = context.getSequence();
+  const session = new LlamaChatSession({ contextSequence: sequence });
 
   session.setChatHistory([
     { type: "system", text: systemPrompt },
   ]);
 
-  const response = await session.prompt(userPrompt, {
-    temperature: config.temperature,
-    topP: config.topP,
-    maxTokens: config.maxTokens,
-    onTextChunk: onToken,
-  });
+  try {
+    const response = await session.prompt(userPrompt, {
+      temperature: config.temperature,
+      topP: config.topP,
+      maxTokens: config.maxTokens,
+      onTextChunk: onToken,
+    });
 
-  return response;
+    return response;
+  } finally {
+    sequence.dispose();
+  }
 }
 
 export async function disposeModel(): Promise<void> {
