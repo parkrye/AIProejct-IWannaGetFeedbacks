@@ -56,16 +56,18 @@ export async function loadModel(dataDir?: string): Promise<void> {
   const modelConfigPath = join(dir, "config", "model.json");
   const modelConfig: ModelConfig = JSON.parse(readFileSync(modelConfigPath, "utf-8"));
 
-  if (existsSync(modelConfig.modelPath)) {
-    console.log(`모델 로딩 중: ${modelConfig.modelPath}`);
+  const absoluteModelPath = join(process.cwd(), modelConfig.modelPath);
+  if (existsSync(absoluteModelPath)) {
+    const resolvedConfig = { ...modelConfig, modelPath: absoluteModelPath };
+    console.log(`모델 로딩 중: ${absoluteModelPath}`);
     try {
-      await initializeModel(modelConfig);
+      await initializeModel(resolvedConfig);
       console.log("모델 로딩 완료");
     } catch (error) {
       console.warn("모델 로딩 실패 — 폴백 모드로 실행됩니다:", error);
     }
   } else {
-    console.warn(`모델 파일을 찾을 수 없습니다: ${modelConfig.modelPath}`);
+    console.warn(`모델 파일을 찾을 수 없습니다: ${absoluteModelPath}`);
     console.warn("models/ 디렉터리에 GGUF 모델을 배치해주세요.");
     console.warn("폴백 모드로 실행됩니다.");
   }
