@@ -1,0 +1,48 @@
+.gen-params {
+  padding: 16px;
+  background: #1a1a2e;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.gen-params__title {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: #e0e0e0;
+}
+
+.gen-params__slider {
+  margin-bottom: 10px;
+}
+
+.gen-params__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #b0b0b0;
+  margin-bottom: 2px;
+}
+
+.gen-params__value {
+  color: #6c63ff;
+  font-weight: bold;
+}
+
+.gen-params__range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gen-params__range-label {
+  font-size: 0.7rem;
+  color: #666;
+  min-width: 45px;
+  text-align: center;
+}
+
+.gen-params__input {
+  flex: 1;
+  accent-color: #6c63ff;
+  height: 6px;
+}

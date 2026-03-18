@@ -59,6 +59,32 @@ export interface PersonaCategory {
   readonly personas: readonly Persona[];
 }
 
+// ── Persona Group ──
+
+export interface PersonaGroup {
+  readonly id: string;
+  readonly name: string;
+  readonly personaIds: readonly string[];
+}
+
+// ── Generation Parameters ──
+
+export interface GenerationParams {
+  readonly positivity: number;
+  readonly nonsense: number;
+  readonly verbosity: number;
+  readonly emoji: number;
+  readonly formality: number;
+}
+
+export const DEFAULT_GENERATION_PARAMS: GenerationParams = {
+  positivity: 5,
+  nonsense: 0,
+  verbosity: 5,
+  emoji: 3,
+  formality: 5,
+};
+
 // ── Generation ──
 
 export interface GenerationRequest {
@@ -66,6 +92,7 @@ export interface GenerationRequest {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly generationParams?: GenerationParams;
 }
 
 export interface GenerationStreamEvent {
@@ -103,6 +130,7 @@ export interface GenerateRequest {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly generationParams?: GenerationParams;
 }
 
 // ── Persona CRUD ──

@@ -1,18 +1,22 @@
 import { useState, useRef, useCallback } from "react";
-import type { SnsPost, ImageLabel, TextAnalysisResult } from "../../shared/types.ts";
+import type { SnsPost, ImageLabel, TextAnalysisResult, GenerationParams } from "../../shared/types.ts";
+import { DEFAULT_GENERATION_PARAMS } from "../../shared/types.ts";
 import { PostInput } from "../components/PostInput/index.ts";
 import { ImagePreview } from "../components/ImagePreview/index.ts";
-import { PersonaSelector } from "../components/PersonaSelector/index.ts";
+import { PersonaGroupSelector } from "../components/PersonaGroupSelector/index.ts";
+import { GenerationParamsPanel } from "../components/GenerationParams/index.ts";
 import { FeedbackDisplay } from "../components/FeedbackDisplay/index.ts";
 import { ErrorBanner } from "../components/ErrorBanner/index.ts";
 import { useImageAnalysis } from "../hooks/useImageAnalysis.ts";
 import { useTextAnalysis } from "../hooks/useTextAnalysis.ts";
 import { useGeneration } from "../hooks/useGeneration.ts";
 import { usePersonas } from "../hooks/usePersonas.ts";
+import { usePersonaGroups } from "../hooks/usePersonaGroups.ts";
 import "./FeedbackPage.css";
 
 export function FeedbackPage() {
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [genParams, setGenParams] = useState<GenerationParams>(DEFAULT_GENERATION_PARAMS);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const lastPostRef = useRef<SnsPost | null>(null);
 
@@ -20,6 +24,11 @@ export function FeedbackPage() {
   const textAnalysis = useTextAnalysis();
   const generation = useGeneration();
   const personas = usePersonas();
+  const personaGroups = usePersonaGroups();
+
+  const handleSelectGroup = useCallback((personaIds: readonly string[]) => {
+    personas.setSelectedIds([...personaIds]);
+  }, [personas]);
 
   const runGeneration = useCallback(
     async (post: SnsPost) => {
@@ -51,9 +60,10 @@ export function FeedbackPage() {
         imageLabels,
         textAnalysis: textResult,
         personaIds: personas.selected,
+        generationParams: genParams,
       });
     },
-    [imageAnalysis, textAnalysis, generation, personas.selected],
+    [imageAnalysis, textAnalysis, generation, personas.selected, genParams],
   );
 
   const handleSubmit = async (post: SnsPost) => {
@@ -92,14 +102,18 @@ export function FeedbackPage() {
             isLoading={imageAnalysis.isLoading}
           />
 
-          <PersonaSelector
+          <PersonaGroupSelector
             personas={personas.personas}
+            groups={personaGroups.groups}
             selected={personas.selected}
-            onToggle={personas.togglePersona}
+            onSelectGroup={handleSelectGroup}
+            onTogglePersona={personas.togglePersona}
             onSelectAll={personas.selectAll}
             onDeselectAll={personas.deselectAll}
             isLoading={personas.isLoading}
           />
+
+          <GenerationParamsPanel params={genParams} onChange={setGenParams} />
         </section>
 
         <section className="feedback-page__output">

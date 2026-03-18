@@ -3,6 +3,7 @@ import type {
   GeneratedFeedback,
   ImageLabel,
   TextAnalysisResult,
+  GenerationParams,
 } from "../../shared/types.ts";
 import { API_ROUTES } from "../../shared/constants.ts";
 
@@ -28,6 +29,7 @@ interface GenerateParams {
   readonly imageLabels: readonly ImageLabel[];
   readonly textAnalysis: TextAnalysisResult;
   readonly personaIds: readonly string[];
+  readonly generationParams?: GenerationParams;
 }
 
 interface StreamEvent {

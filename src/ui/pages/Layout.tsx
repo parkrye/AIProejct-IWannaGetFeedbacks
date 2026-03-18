@@ -13,6 +13,9 @@ export function Layout() {
           <NavLink to="/personas" className={({ isActive }) => `layout__link ${isActive ? "layout__link--active" : ""}`}>
             페르소나
           </NavLink>
+          <NavLink to="/groups" className={({ isActive }) => `layout__link ${isActive ? "layout__link--active" : ""}`}>
+            그룹
+          </NavLink>
         </nav>
       </header>
       <main className="layout__main">

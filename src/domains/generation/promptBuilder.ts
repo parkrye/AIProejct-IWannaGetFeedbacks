@@ -4,6 +4,7 @@ import type {
   ImageLabel,
   PromptTemplate,
   FeedbackExample,
+  GenerationParams,
 } from "../../shared/types.ts";
 import type { SearchResult } from "../rag/types.ts";
 
@@ -15,6 +16,7 @@ interface PromptContext {
   readonly fewShotExamples: readonly FeedbackExample[];
   readonly template: PromptTemplate;
   readonly ragResults?: readonly SearchResult[];
+  readonly generationParams?: GenerationParams;
 }
 
 export function buildPrompt(context: PromptContext): { system: string; user: string } {
@@ -31,7 +33,8 @@ export function buildPrompt(context: PromptContext): { system: string; user: str
     .replace("{{examplePatterns}}", context.persona.examplePatterns.join(" / "));
 
   const ragSection = formatRagResults(context.ragResults ?? []);
-  const sections = [ragSection, fewShotSection, user].filter(Boolean);
+  const paramsSection = formatGenerationParams(context.generationParams);
+  const sections = [ragSection, fewShotSection, paramsSection, user].filter(Boolean);
   const fullUser = sections.join("\n\n");
 
   return {
@@ -63,6 +66,36 @@ function formatRagResults(results: readonly SearchResult[]): string {
     return `대화 ${i + 1} (주제: ${topic}):\n${utterances}`;
   });
   return `[실제 SNS 대화 참고]\n${lines.join("\n\n")}`;
+}
+
+function formatGenerationParams(params?: GenerationParams): string {
+  if (!params) return "";
+
+  const instructions: string[] = [];
+
+  if (params.positivity <= 2) instructions.push("매우 부정적이고 비판적인 톤으로 작성하세요.");
+  else if (params.positivity <= 4) instructions.push("다소 부정적인 톤으로 작성하세요.");
+  else if (params.positivity >= 8) instructions.push("매우 긍정적이고 칭찬하는 톤으로 작성하세요.");
+  else if (params.positivity >= 6) instructions.push("긍정적인 톤으로 작성하세요.");
+
+  if (params.nonsense >= 8) instructions.push("게시글 내용과 상관없이 자유롭게 연상되는 내용을 작성하세요.");
+  else if (params.nonsense >= 5) instructions.push("게시글 내용을 참고하되 자유롭게 벗어나도 됩니다.");
+  else if (params.nonsense <= 2) instructions.push("게시글 내용에 충실하게 반응하세요.");
+
+  if (params.verbosity <= 2) instructions.push("한 줄 이내로 아주 짧게 작성하세요.");
+  else if (params.verbosity <= 4) instructions.push("짧게 작성하세요.");
+  else if (params.verbosity >= 8) instructions.push("길고 상세하게 작성하세요.");
+
+  if (params.emoji >= 8) instructions.push("이모지를 많이 사용하세요.");
+  else if (params.emoji >= 5) instructions.push("이모지를 적절히 사용하세요.");
+  else if (params.emoji <= 1) instructions.push("이모지를 사용하지 마세요.");
+
+  if (params.formality <= 2) instructions.push("반말과 인터넷 은어를 사용하세요.");
+  else if (params.formality <= 4) instructions.push("캐주얼한 말투로 작성하세요.");
+  else if (params.formality >= 8) instructions.push("격식체를 사용하세요.");
+
+  if (instructions.length === 0) return "";
+  return `[댓글 스타일 지시]\n${instructions.join("\n")}`;
 }
 
 function translateSentiment(sentiment: string): string {

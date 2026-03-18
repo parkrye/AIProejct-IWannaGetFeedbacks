@@ -11,10 +11,18 @@ import {
   updatePersonaRoute,
   deletePersonaRoute,
 } from "./routes/personaRoute.ts";
+import {
+  listGroupsRoute,
+  getGroupRoute,
+  createGroupRoute,
+  updateGroupRoute,
+  deleteGroupRoute,
+} from "./routes/personaGroupRoute.ts";
 import { loadPersonasFromDirectory } from "../domains/persona/index.ts";
 import { loadFeedbackDataFromFile } from "../domains/feedback-data/index.ts";
 import { initializeModel } from "../domains/generation/index.ts";
 import { loadFromBinary, getEntryCount } from "../domains/rag/index.ts";
+import { loadGroups } from "../domains/persona-group/index.ts";
 import type { ModelConfig } from "../shared/types.ts";
 
 const VECTOR_STORE_PATH = "data/vector-store/dialogues.bin";
@@ -25,12 +33,19 @@ export function createApp(): express.Express {
 
   app.post("/api/analyze", analyzeRoute);
   app.post("/api/generate", generateRoute);
+
   app.get("/api/personas", listPersonasRoute);
   app.get("/api/personas/categories", listCategoriesRoute);
   app.get("/api/personas/:id", getPersonaRoute);
   app.post("/api/personas", createPersonaRoute);
   app.put("/api/personas/:id", updatePersonaRoute);
   app.delete("/api/personas/:id", deletePersonaRoute);
+
+  app.get("/api/persona-groups", listGroupsRoute);
+  app.get("/api/persona-groups/:id", getGroupRoute);
+  app.post("/api/persona-groups", createGroupRoute);
+  app.put("/api/persona-groups/:id", updateGroupRoute);
+  app.delete("/api/persona-groups/:id", deleteGroupRoute);
 
   return app;
 }
@@ -40,6 +55,7 @@ export function loadData(dataDir?: string): void {
 
   loadPersonasFromDirectory(join(dir, "personas"));
   loadFeedbackDataFromFile(join(dir, "feedback-examples", "examples.json"));
+  loadGroups(join(dir, "persona-groups", "groups.json"));
 
   const vectorStorePath = join(process.cwd(), VECTOR_STORE_PATH);
   if (existsSync(vectorStorePath)) {

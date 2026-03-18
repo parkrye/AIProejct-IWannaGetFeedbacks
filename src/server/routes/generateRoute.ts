@@ -73,6 +73,7 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
       fewShotExamples,
       template,
       ragResults,
+      generationParams: body.generationParams,
     });
 
     const sendEvent = (data: object) => {

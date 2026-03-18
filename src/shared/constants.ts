@@ -3,6 +3,8 @@ export const API_ROUTES = {
   GENERATE: "/api/generate",
   PERSONAS: "/api/personas",
   PERSONA_BY_ID: (id: string) => `/api/personas/${id}`,
+  PERSONA_GROUPS: "/api/persona-groups",
+  PERSONA_GROUP_BY_ID: (id: string) => `/api/persona-groups/${id}`,
 } as const;
 
 export const DEFAULT_MODEL_PATH = "./models/qwen2.5-7b-instruct-q4_k_m.gguf";

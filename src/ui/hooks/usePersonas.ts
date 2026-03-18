@@ -10,6 +10,7 @@ interface UsePersonasReturn {
   readonly togglePersona: (id: string) => void;
   readonly selectAll: () => void;
   readonly deselectAll: () => void;
+  readonly setSelectedIds: (ids: string[]) => void;
 }
 
 export function usePersonas(): UsePersonasReturn {
@@ -41,5 +42,7 @@ export function usePersonas(): UsePersonasReturn {
   const selectAll = () => setSelected(personas.map((p) => p.id));
   const deselectAll = () => setSelected([]);
 
-  return { personas, selected, isLoading, error, togglePersona, selectAll, deselectAll };
+  const setSelectedIds = (ids: string[]) => setSelected(ids);
+
+  return { personas, selected, isLoading, error, togglePersona, selectAll, deselectAll, setSelectedIds };
 }
