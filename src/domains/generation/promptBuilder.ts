@@ -82,8 +82,8 @@ function formatGenerationParams(params?: GenerationParams): string {
   else if (params.positivity >= 8) instructions.push("매우 긍정적이고 칭찬하는 톤으로 작성하세요.");
   else if (params.positivity >= 6) instructions.push("긍정적인 톤으로 작성하세요.");
 
-  if (params.nonsense >= 8) instructions.push("게시글 내용과 상관없이 자유롭게 연상되는 내용을 작성하세요.");
-  else if (params.nonsense >= 5) instructions.push("게시글 내용을 참고하되 자유롭게 벗어나도 됩니다.");
+  if (params.nonsense >= 8) instructions.push("게시글의 주제나 키워드는 반드시 언급하되, 엉뚱하고 예상치 못한 방향으로 해석하여 댓글을 작성하세요.");
+  else if (params.nonsense >= 5) instructions.push("게시글 내용을 기반으로 하되, 자기만의 독특한 관점이나 경험을 섞어서 자유롭게 반응하세요.");
   else if (params.nonsense <= 2) instructions.push("게시글 내용에 충실하게 반응하세요.");
 
   if (params.verbosity <= 2) instructions.push("한 줄 이내로 아주 짧게 작성하세요.");

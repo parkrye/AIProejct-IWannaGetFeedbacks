@@ -56,6 +56,11 @@
 }
 
 .pg-selector__group-btn:hover { background: #3d3d7e; }
+.pg-selector__group-btn--active { background: #6c63ff; color: white; border-color: #6c63ff; }
+
+.pg-selector__hint { color: #777; font-size: 0.85rem; font-style: italic; padding: 8px 0; }
+.pg-selector__group-info { margin: 0 0 8px; color: #b0b0b0; font-size: 0.85rem; }
+.pg-selector__hint-text { color: #888; font-size: 0.75rem; }
 
 .pg-selector__grid {
   display: grid;

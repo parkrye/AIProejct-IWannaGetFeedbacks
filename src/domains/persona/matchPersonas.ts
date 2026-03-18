@@ -20,13 +20,22 @@ export function matchPersonasByContent(
   if (allPersonas.length === 0) return [];
 
   const scored = scorePersonas(allPersonas, textAnalysis, postText);
-  const matched = scored.filter((s) => s.score >= MIN_MATCH_SCORE).slice(0, maxCount);
+  const matched = scored.filter((s) => s.score >= MIN_MATCH_SCORE);
 
-  if (matched.length === 0) {
-    return scored.slice(0, Math.min(maxCount, allPersonas.length)).map((s) => s.persona);
+  if (matched.length >= maxCount) {
+    return matched.slice(0, maxCount).map((s) => s.persona);
   }
 
-  return matched.map((s) => s.persona);
+  if (matched.length === 0) {
+    return shuffleArray([...allPersonas]).slice(0, Math.min(maxCount, allPersonas.length));
+  }
+
+  const matchedPersonas = matched.map((s) => s.persona);
+  const matchedIds = new Set(matchedPersonas.map((p) => p.id));
+  const remaining = allPersonas.filter((p) => !matchedIds.has(p.id));
+  const randomFill = shuffleArray([...remaining]).slice(0, maxCount - matchedPersonas.length);
+
+  return [...matchedPersonas, ...randomFill];
 }
 
 export function selectFromGroup(

@@ -73,7 +73,6 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
   const selectionMode = body.selectionMode ?? "manual";
 
   let personas: Persona[];
-
   const feedbackCount = Math.max(1, Math.min(10, body.feedbackCount ?? 5));
 
   if (selectionMode === "dynamic") {
@@ -109,8 +108,20 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
 
   const totalPersonas = personas.length;
 
+  const sendEvent = (data: object) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
   for (let i = 0; i < personas.length; i++) {
     const persona = personas[i];
+
+    sendEvent({
+      type: "progress",
+      current: i,
+      total: totalPersonas,
+      status: "generating",
+      personaName: persona.name,
+    });
 
     const modelConfig = deriveModelOverrides(baseModelConfig, body.generationParams, persona.params);
     const ragResults = await getRagResults(body.postText, persona);
@@ -127,50 +138,30 @@ export async function generateRoute(req: Request, res: Response): Promise<void> 
       generationParams: body.generationParams,
     });
 
-    const maxTokens = modelConfig.maxTokens;
-
-    const sendEvent = (data: object) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
-    };
-
-    sendEvent({
-      personaId: persona.id,
-      personaName: persona.name,
-      token: "",
-      done: false,
-      progress: { current: i, total: totalPersonas, tokenCount: 0, maxTokens },
-    });
-
-    let tokenCount = 0;
     try {
+      let fullContent = "";
       await generateWithCallback(prompt.system, prompt.user, modelConfig, (token) => {
-        tokenCount++;
-        sendEvent({
-          personaId: persona.id,
-          token,
-          done: false,
-          progress: { current: i, total: totalPersonas, tokenCount, maxTokens },
-        });
+        fullContent += token;
+      });
+
+      sendEvent({
+        type: "feedback",
+        personaId: persona.id,
+        personaName: persona.name,
+        content: fullContent,
       });
     } catch (error) {
       console.error(`생성 오류 [${persona.id}]:`, error);
-      const fallback = generateFallbackResponse(persona.name, error);
-      sendEvent({ personaId: persona.id, token: fallback, done: false });
+      sendEvent({
+        type: "error",
+        personaId: persona.id,
+        personaName: persona.name,
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
-
-    sendEvent({
-      personaId: persona.id,
-      token: "",
-      done: true,
-      progress: { current: i + 1, total: totalPersonas, tokenCount, maxTokens },
-    });
   }
 
+  sendEvent({ type: "progress", current: totalPersonas, total: totalPersonas, status: "done" });
   res.write("data: [DONE]\n\n");
   res.end();
-}
-
-function generateFallbackResponse(personaName: string, error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-  return `[${personaName}] 생성 실패: ${message}`;
 }

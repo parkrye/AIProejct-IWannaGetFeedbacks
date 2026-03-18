@@ -11,14 +11,14 @@ import { API_ROUTES } from "../../shared/constants.ts";
 export interface GenerationProgress {
   readonly currentPersona: number;
   readonly totalPersonas: number;
-  readonly tokenCount: number;
-  readonly maxTokens: number;
+  readonly status: "generating" | "done" | "error";
+  readonly currentPersonaName?: string;
 }
 
 interface UseGenerationReturn {
   readonly feedbacks: ReadonlyMap<string, GeneratedFeedback>;
+  readonly errors: ReadonlyMap<string, string>;
   readonly isGenerating: boolean;
-  readonly error: string | null;
   readonly progress: GenerationProgress | null;
   readonly generate: (params: GenerateParams) => Promise<void>;
   readonly cancel: () => void;
@@ -36,29 +36,27 @@ interface GenerateParams {
 }
 
 interface StreamEvent {
-  personaId: string;
+  type: "progress" | "feedback" | "error";
+  personaId?: string;
   personaName?: string;
-  token: string;
-  done: boolean;
-  progress?: {
-    current: number;
-    total: number;
-    tokenCount: number;
-    maxTokens: number;
-  };
+  content?: string;
+  message?: string;
+  current?: number;
+  total?: number;
+  status?: string;
 }
 
 export function useGeneration(): UseGenerationReturn {
   const [feedbacks, setFeedbacks] = useState<Map<string, GeneratedFeedback>>(new Map());
+  const [errors, setErrors] = useState<Map<string, string>>(new Map());
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<GenerationProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const generate = useCallback(async (params: GenerateParams) => {
     setIsGenerating(true);
-    setError(null);
     setFeedbacks(new Map());
+    setErrors(new Map());
     setProgress(null);
 
     const controller = new AbortController();
@@ -98,25 +96,30 @@ export function useGeneration(): UseGenerationReturn {
           try {
             const event = JSON.parse(data) as StreamEvent;
 
-            if (event.progress) {
+            if (event.type === "progress") {
               setProgress({
-                currentPersona: event.progress.current,
-                totalPersonas: event.progress.total,
-                tokenCount: event.progress.tokenCount,
-                maxTokens: event.progress.maxTokens,
+                currentPersona: event.current ?? 0,
+                totalPersonas: event.total ?? 0,
+                status: (event.status as GenerationProgress["status"]) ?? "generating",
+                currentPersonaName: event.personaName,
+              });
+            } else if (event.type === "feedback" && event.personaId) {
+              setFeedbacks((prev) => {
+                const next = new Map(prev);
+                next.set(event.personaId!, {
+                  personaId: event.personaId!,
+                  personaName: event.personaName ?? event.personaId!,
+                  content: event.content ?? "",
+                });
+                return next;
+              });
+            } else if (event.type === "error" && event.personaId) {
+              setErrors((prev) => {
+                const next = new Map(prev);
+                next.set(event.personaId!, event.message ?? "생성 실패");
+                return next;
               });
             }
-
-            setFeedbacks((prev) => {
-              const next = new Map(prev);
-              const existing = next.get(event.personaId);
-              next.set(event.personaId, {
-                personaId: event.personaId,
-                personaName: event.personaName ?? existing?.personaName ?? event.personaId,
-                content: (existing?.content ?? "") + event.token,
-              });
-              return next;
-            });
           } catch {
             // skip malformed events
           }
@@ -124,11 +127,14 @@ export function useGeneration(): UseGenerationReturn {
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        setError(err instanceof Error ? err.message : "생성에 실패했습니다.");
+        setErrors((prev) => {
+          const next = new Map(prev);
+          next.set("__global__", err instanceof Error ? err.message : "생성에 실패했습니다.");
+          return next;
+        });
       }
     } finally {
       setIsGenerating(false);
-      setProgress(null);
       abortRef.current = null;
     }
   }, []);
@@ -140,9 +146,9 @@ export function useGeneration(): UseGenerationReturn {
   const reset = useCallback(() => {
     cancel();
     setFeedbacks(new Map());
-    setError(null);
+    setErrors(new Map());
     setProgress(null);
   }, [cancel]);
 
-  return { feedbacks, isGenerating, error, progress, generate, cancel, reset };
+  return { feedbacks, errors, isGenerating, progress, generate, cancel, reset };
 }

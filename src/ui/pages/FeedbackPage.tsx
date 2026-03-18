@@ -167,8 +167,8 @@ export function FeedbackPage() {
         <section className="feedback-page__output">
           <FeedbackDisplay
             feedbacks={generation.feedbacks}
+            errors={generation.errors}
             isGenerating={generation.isGenerating}
-            error={generation.error}
             progress={generation.progress}
             onRetry={handleRetry}
             onDismissError={handleDismissError}
